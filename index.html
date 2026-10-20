@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COP MES | 생산·설비 통합 모니터링</title>
+<style>
+:root{--bg:#0a1020;--panel:#111a2d;--panel2:#162239;--line:#263653;--text:#edf3ff;--muted:#91a2bf;--blue:#5b9cff;--cyan:#45d6d0;--green:#4bd49a;--yellow:#ffcb66;--red:#ff6f7d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#142442 0,#0a1020 48%);font-family:Inter,"Malgun Gothic",Arial,sans-serif;color:var(--text);font-size:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 24px;border-bottom:1px solid var(--line);background:#0d1628eF;position:sticky;top:0;z-index:3;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#357cff,#38d5cb);display:grid;place-items:center;font-weight:900;color:#07152a;font-size:17px}.brand h1{font-size:17px;margin:0 0 4px}.brand p{margin:0;color:var(--muted);font-size:12px}.header-right{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px}.status-pill{border:1px solid #246e58;background:#12362f;color:#70e8b6;border-radius:30px;padding:7px 10px}
+main{max-width:1500px;margin:auto;padding:22px 24px 42px}.warning{padding:12px 15px;border:1px solid #765b2e;background:#302819;border-radius:12px;color:#f7d18b;margin-bottom:18px;line-height:1.55}.warning strong{color:#ffe5a8}
+.nav{display:flex;gap:8px;overflow:auto;margin-bottom:20px}.nav button{white-space:nowrap;border:1px solid var(--line);border-radius:10px;background:#111a2d;color:var(--muted);padding:10px 15px;cursor:pointer}.nav button.active{background:#1b3a66;border-color:#427fce;color:white}
+.page-title{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:20px 0}.page-title h2{font-size:24px;margin:0 0 6px}.page-title p{margin:0;color:var(--muted)}.btn{border:1px solid #345782;background:#1c3b64;color:#e9f3ff;padding:10px 13px;border-radius:9px;cursor:pointer}.btn:hover{filter:brightness(1.15)}.btn.secondary{background:#131f33;border-color:var(--line);color:#c9d6ec}
+.grid{display:grid;gap:14px}.kpis{grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:16px}.card{background:linear-gradient(155deg,#141f34,#10182a);border:1px solid var(--line);border-radius:15px;padding:17px;min-width:0;box-shadow:0 8px 22px #00000010}.kpi-label{color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:8px}.kpi-value{font-size:27px;font-weight:750;margin:13px 0 7px;letter-spacing:-.7px}.kpi-sub{font-size:12px;color:var(--muted)}.kpi-sub b{color:var(--cyan);font-weight:600}.layout2{grid-template-columns:minmax(0,1.45fr) minmax(300px,1fr)}.layout3{grid-template-columns:repeat(3,minmax(0,1fr))}.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.card-head h3{font-size:15px;margin:0}.card-head small{color:var(--muted)}.tag{font-size:11px;border-radius:6px;padding:5px 8px;background:#20314c;color:#a8c8ff}.chart{width:100%;height:210px;display:block}.legend{display:flex;gap:15px;color:var(--muted);font-size:11px;flex-wrap:wrap}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.bar-row{display:grid;grid-template-columns:64px 1fr 54px;gap:10px;align-items:center;margin:15px 0}.bar-row label{color:#cbd7eb}.track{height:9px;border-radius:9px;background:#25324a;overflow:hidden}.fill{height:100%;border-radius:9px;background:linear-gradient(90deg,#397dff,#4bd6d0)}.bar-row strong{text-align:right;font-size:12px}.equipment-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.equipment{border:1px solid var(--line);background:#101a2c;border-radius:11px;padding:13px}.equipment .eq-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:14px}.equipment h4{margin:0;font-size:13px}.state{font-size:10px;border-radius:20px;padding:4px 7px;background:#14392e;color:#73e9b4}.state.warn{background:#43331b;color:#ffd17b}.state.stop{background:#47232d;color:#ff9ca5}.equipment .eq-number{font-size:23px;font-weight:700}.equipment .eq-meta{font-size:11px;color:var(--muted);margin-top:5px}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:12px 11px;text-align:left;border-bottom:1px solid #24314a;font-size:12px}th{color:var(--muted);font-weight:600;background:#121d30}td{color:#dce6f7}tr:last-child td{border-bottom:0}.pill{display:inline-block;border-radius:6px;padding:4px 7px;font-size:11px}.pill.red{background:#46232d;color:#ff9ca5}.pill.yellow{background:#42331c;color:#ffd17b}.pill.green{background:#16392f;color:#7de9b8}.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px}.field input,.field select{width:100%;background:#0b1424;color:var(--text);border:1px solid #30415f;border-radius:8px;padding:10px;outline:none}.field input:focus,.field select:focus{border-color:var(--blue)}.result{background:#102b31;border:1px solid #23615c;padding:15px;border-radius:12px;margin-top:14px}.result .big{font-size:28px;font-weight:800;color:#70e8d5}.muted{color:var(--muted)}.small{font-size:11px}.footer{margin-top:20px;color:#71829f;font-size:11px;line-height:1.6}.section{display:none}.section.active{display:block}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.alert-list{display:grid;gap:10px}.alert{display:flex;gap:11px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#101a2c}.alert-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:#43242c;color:#ff9ca5;flex-shrink:0}.alert h4{margin:0 0 4px;font-size:12px}.alert p{margin:0;color:var(--muted);font-size:11px;line-height:1.5}.no-data{padding:25px;text-align:center;color:var(--muted)}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.layout2{grid-template-columns:1fr}.layout3{grid-template-columns:1fr}.equipment-list{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:680px){header{padding:13px 14px}.header-right .status-pill{display:none}main{padding:16px 12px 30px}.brand h1{font-size:14px}.brand p{font-size:10px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card{padding:13px}.kpi-value{font-size:22px}.page-title{align-items:start;flex-direction:column}.page-title h2{font-size:21px}.equipment-list{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}.chart{height:180px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">COP</div><div><h1>COP MES · 생산·설비 통합 모니터링</h1><p>SCADA Operator Workspace · 설계 시제품</p></div></div>
+ <div class="header-right"><span id="clock">--</span><span class="status-pill">● 시제품 모드</span></div>
+</header>
+<main>
+ <div class="warning"><strong>데이터 연결 전 시제품</strong> — 화면의 생산량·설비 상태·사용량은 실제 공장 데이터가 아닌 예시값입니다. 실시간 연동 상태가 아니며, 실제 수치로 판단하거나 설비 제어에 사용하지 마세요.</div>
+ <div class="nav" role="tablist">
+  <button class="active" data-tab="overview">종합 대시보드</button><button data-tab="production">1호기 생산 현황</button><button data-tab="packer">로타리 패커</button><button data-tab="materials">원자재·생산 예측</button><button data-tab="utilities">가스·모래 사용량</button><button data-tab="alarms">설비 오류 이력</button><button data-tab="integration">연동 설계</button>
+ </div>
+ <section id="overview" class="section active">
+  <div class="page-title"><div><h2>현장 운영 현황</h2><p>생산 실적, 패커 처리량, 설비 이벤트를 한 화면에서 확인합니다.</p></div><button class="btn secondary" onclick="resetDemo()">예시 데이터 초기화</button></div>
+  <div class="grid kpis">
+   <div class="card"><div class="kpi-label">금일 생산량 <span>▰</span></div><div class="kpi-value">238.4 <span style="font-size:13px;color:var(--muted)">톤</span></div><div class="kpi-sub"><b>예시값</b> · 목표 300톤 기준 79.5%</div></div>
+   <div class="card"><div class="kpi-label">로터리 패커 포장량 <span>▤</span></div><div class="kpi-value">23,849 <span style="font-size:13px;color:var(--muted)">포대</span></div><div class="kpi-sub">포대 중량 설정 확인 필요</div></div>
+   <div class="card"><div class="kpi-label">설비 경보 <span>⚠</span></div><div class="kpi-value" style="color:var(--yellow)">3 <span style="font-size:13px;color:var(--muted)">건</span></div><div class="kpi-sub">미확인 1건 · 예시 이벤트</div></div>
+   <div class="card"><div class="kpi-label">가스 사용량 <span>♨</span></div><div class="kpi-value">—</div><div class="kpi-sub">계량기 태그·단위 연결 필요</div></div>
+   <div class="card"><div class="kpi-label">모래 사용량 <span>◈</span></div><div class="kpi-value">—</div><div class="kpi-sub">투입량/재고 데이터 연결 필요</div></div>
+  </div>
+  <div class="grid layout2">
+   <div class="card"><div class="card-head"><h3>시간대별 생산 실적</h3><span class="tag">샘플 시계열</span></div><svg class="chart" viewBox="0 0 650 220" preserveAspectRatio="none"><g stroke="#293852" stroke-width="1"><path d="M45 25H630 M45 65H630 M45 105H630 M45 145H630 M45 185H630"/></g><g fill="#8293b0" font-size="10"><text x="8" y="28">60t</text><text x="8" y="68">45t</text><text x="8" y="108">30t</text><text x="8" y="148">15t</text><text x="16" y="188">0</text><text x="42" y="210">06시</text><text x="184" y="210">09시</text><text x="328" y="210">12시</text><text x="470" y="210">15시</text><text x="600" y="210">18시</text></g><path d="M45 160 L110 145 L175 125 L240 132 L305 94 L370 104 L435 72 L500 88 L565 51 L630 64 L630 185 L45 185Z" fill="#4c91ff" opacity=".15"/><path d="M45 160 L110 145 L175 125 L240 132 L305 94 L370 104 L435 72 L500 88 L565 51 L630 64" fill="none" stroke="#5b9cff" stroke-width="3" stroke-linejoin="round"/><path d="M45 170 L110 166 L175 151 L240 160 L305 138 L370 143 L435 120 L500 126 L565 108 L630 111" fill="none" stroke="#45d6d0" stroke-width="2" stroke-dasharray="5 4"/></svg><div class="legend"><span><i class="dot" style="background:#5b9cff"></i>실적(예시)</span><span><i class="dot" style="background:#45d6d0"></i>비교 기준(예시)</span></div></div>
+   <div class="card"><div class="card-head"><h3>1호기 현황</h3><span class="tag">상태 예시</span></div><div class="equipment-list" style="grid-template-columns:1fr">
+    <div class="equipment"><div class="eq-top"><h4>1호기</h4><span class="state">가동</span></div><div class="eq-number">92.4 <small style="font-size:11px;color:var(--muted)">톤</small></div><div class="eq-meta">누적 생산량 · 예시</div><div class="track" style="margin-top:12px"><div class="fill" style="width:82%"></div></div></div>
+   </div><p class="small muted" style="margin:14px 0 0">호기별 실제 생산 실적은 생산 완료 신호, 배치 기록 또는 계량기 데이터와 대조해야 합니다.</p></div>
+  </div>
+  <div class="grid layout2" style="margin-top:14px">
+   <div class="card"><div class="card-head"><h3>최근 설비 이벤트</h3><button class="btn secondary" onclick="showTab('alarms')">전체 이력</button></div><div class="table-wrap"><table><thead><tr><th>발생 시각</th><th>설비</th><th>이벤트</th><th>상태</th></tr></thead><tbody id="recentAlarms"></tbody></table></div></div>
+   <div class="card"><div class="card-head"><h3>운영자가 확인할 항목</h3><span class="tag">연동 전 체크</span></div><div class="alert-list"><div class="alert"><div class="alert-icon">!</div><div><h4>계량 단위와 기준 확인</h4><p>가스 단위(Nm³, m³ 등), 모래 중량 단위(kg, ton), 포대 중량을 확인하세요.</p></div></div><div class="alert"><div class="alert-icon">↔</div><div><h4>생산량 데이터 대조</h4><p>SCADA 표시값과 일일 생산일보 또는 계량 기록을 같은 시간 기준으로 비교합니다.</p></div></div><div class="alert"><div class="alert-icon">⌁</div><div><h4>설비 태그 목록 확보</h4><p>알람 코드, 상태 비트, 카운터, 누적계, 호기/패커 매핑이 필요합니다.</p></div></div></div></div>
+  </div>
+ </section>
+ <section id="production" class="section">
+  <div class="page-title"><div><h2>1호기 생산 현황</h2><p>1호기 생산량, 목표 대비 실적 및 가동시간을 확인합니다.</p></div><span class="tag">예시 데이터</span></div>
+  <div class="grid layout2">
+   <div class="card"><div class="card-head"><h3>1호기</h3><span class="state">가동 예시</span></div><div class="kpi-value">92.4 t</div><div class="kpi-sub">목표 대비 92.4% (목표 100t 가정)</div><div class="track" style="margin-top:14px"><div class="fill" style="width:92.4%"></div></div><p class="small muted">배치 횟수·가동시간 연결 시 시간당 생산량을 계산할 수 있습니다.</p></div>
+  </div>
+  <div class="card" style="margin-top:14px"><div class="card-head"><h3>호기별 실적 입력/검증</h3><small>현장 기록과 대조용</small></div><div class="form-grid"><div class="field"><label>기준일</label><input type="date" id="prodDate"></div><div class="field"><label>호기</label><select id="prodLine"><option>1호기</option></select></div><div class="field"><label>생산량 (톤)</label><input id="prodQty" type="number" min="0" placeholder="실제 확인한 수치"></div><div class="field"><label>가동시간 (시간)</label><input id="runHours" type="number" min="0" step=".1" placeholder="예: 6.5"></div><div class="field"><label>목표 생산량 (톤)</label><input id="prodTarget" type="number" min="0" placeholder="계획값"></div><div class="field" style="display:flex;align-items:end"><button class="btn" style="width:100%" onclick="addProduction()">기록 추가</button></div></div><div id="prodResult" class="small muted" style="margin-top:12px">기록을 추가하면 이 브라우저 화면에서만 표시됩니다. 서버나 MES DB에 저장되지 않습니다.</div><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>기준일</th><th>호기</th><th>생산량</th><th>가동시간</th><th>시간당 생산량</th><th>목표 달성률</th></tr></thead><tbody id="prodRows"><tr><td colspan="6" class="muted">입력 기록 없음</td></tr></tbody></table></div></div>
+  <div class="footer">실제 생산량 산정 기준은 배치 완료 시점, 포장 완료 시점, 계량기 누적값 중 현장 표준에 맞춰 하나로 정해야 합니다.</div>
+ </section>
+ <section id="packer" class="section">
+  <div class="page-title"><div><h2>로타리 패커 생산 실적</h2><p>금일·전일 생산량, 가동시간, 시간당 포대 생산량과 1~8번 스파우트별 실적을 확인합니다.</p></div><span class="tag">입력값 기반 · SCADA 실시간 연동 아님</span></div>
+  <div class="warning"><strong>중요:</strong> 실제 SCADA 태그 연결 전에는 수치를 직접 입력해야 합니다. 시간대별 실적과 스파우트별 실적은 현재 예시값을 만들지 않으며, 비어 있는 항목은 미입력으로 표시됩니다.</div>
+  <div class="card" style="margin-bottom:14px">
+   <div class="card-head"><h3>로타리 패커 사진 첨부 · 자동 판독</h3><small>사진 여러 장 한 번에 선택</small></div>
+   <p class="small muted">SCADA의 로타리 패커 화면 사진을 선택하면 OCR로 문자를 읽고, 인식된 금일·전일 생산량과 가동시간을 아래 입력칸에 채워 넣습니다. 숫자를 자동 확정하지 않으므로 반영된 값을 확인한 뒤 사용하세요. 처음 실행 시 OCR 언어 파일 다운로드로 시간이 더 걸릴 수 있습니다.</p>
+   <div class="form-grid">
+    <div class="field"><label for="packerPhotos">SCADA 사진 선택 (복수 선택 가능)</label><input id="packerPhotos" type="file" accept="image/*" multiple></div>
+    <div class="field" style="display:flex;align-items:end"><button class="btn" id="readPackerPhotos" type="button" style="width:100%">사진 OCR 판독 및 값 반영</button></div>
+   </div>
+   <div id="packerPhotoNames" class="small muted" style="margin-top:8px">선택된 사진 없음</div>
+   <div id="packerOcrStatus" class="result"><div class="muted small">사진을 선택한 후 판독 버튼을 누르세요.</div></div>
+   <details style="margin-top:10px"><summary>OCR 원문 보기</summary><pre id="packerOcrText" style="white-space:pre-wrap;overflow-wrap:anywhere;max-height:220px;overflow:auto"></pre></details>
+  </div>
+  <div class="grid layout2">
+   <div class="card"><div class="card-head"><h3>일일 생산 및 가동시간</h3><small>포대 기준</small></div>
+    <div class="form-grid">
+     <div class="field"><label>기준일</label><input id="packerDate" type="date"></div>
+     <div class="field"><label>금일 생산량 (포)</label><input id="packerToday" type="number" min="0" step="1" placeholder="SCADA 금일 생산량"></div>
+     <div class="field"><label>금일 가동시간 (시간)</label><input id="packerTodayHours" type="number" min="0" step="0.01" placeholder="SCADA 생산가동시간"></div>
+     <div class="field"><label>전일 생산량 (포)</label><input id="packerPrev" type="number" min="0" step="1" placeholder="SCADA 전일 생산량"></div>
+     <div class="field"><label>전일 가동시간 (시간)</label><input id="packerPrevHours" type="number" min="0" step="0.01" placeholder="전일 생산가동시간"></div>
+     <div class="field"><label>판독된 생산 제품</label><input id="packerProductDetected" type="text" readonly placeholder="사진에서 제품명 자동 판독"></div>
+    </div>
+    <div style="margin-top:14px"><button class="btn" onclick="calcPackerSummary()">생산 실적 계산</button></div>
+    <div id="packerSummary" class="result"><div class="muted small">금일 생산량과 가동시간을 입력하면 시간당 평균 포대 생산량을 계산합니다.</div></div>
+   </div>
+   <div class="card"><div class="card-head"><h3>스파우트별 생산량</h3><small>1~8번</small></div>
+    <p class="small muted">각 스파우트의 실제 카운터 값을 입력하세요. 전체 합계와 금일 총생산량을 비교합니다. 실제 태그가 연결되면 수동 입력 대신 자동 수신하도록 확장할 수 있습니다.</p>
+    <div class="form-grid" id="spoutInputs"></div>
+    <div style="margin-top:14px"><button class="btn" onclick="calcSpouts()">스파우트 합계 확인</button></div>
+    <div id="spoutSummary" class="result"><div class="muted small">스파우트별 값이 아직 입력되지 않았습니다.</div></div>
+   </div>
+  </div>
+  <div class="card" style="margin-top:14px"><div class="card-head"><h3>시간대별 생산 실적</h3><small>시간별 포대 수 입력</small></div>
+   <p class="small muted">금일·전일 시간당 평균 생산량은 각 일자의 총 생산량 ÷ 해당 일자의 실제 생산가동시간으로 자동 계산됩니다. 아래 00~24시 표는 시간대별 실제 포대 수를 입력하는 별도 기록이며, 평균값을 실제 시간대별 실적으로 오인하지 않도록 구분합니다.</p>
+   <div id="packerHourlyAverage" class="result"><div class="muted small">금일·전일 생산량과 가동시간을 입력하면 시간당 평균 포대 수가 여기에 표시됩니다.</div></div>
+   <div class="table-wrap"><table><thead><tr><th>시간대</th><th>생산량 (포)</th><th>가동 여부</th><th>시간당 생산량 (포/가동시간)</th></tr></thead><tbody id="packerHourlyRows"></tbody><tfoot><tr><th>입력 합계</th><th id="packerHourlyTotal">—</th><th colspan="2" id="packerHourlyCheck">시간대별 실적 미입력</th></tr></tfoot></table></div>
+   <div style="margin-top:14px"><button class="btn" onclick="calcHourlyPacker()">시간대별 합계 계산</button> <button class="btn secondary" onclick="clearPackerInputs()">패커 입력값 지우기</button></div>
+   <div class="footer">현재 화면은 초기 홈페이지를 유지하면서 로타리 패커 항목만 추가한 시제품입니다. SCADA에 시간별/스파우트별 카운터가 없다면 해당 상세값은 자동으로 만들어낼 수 없으며, 현장 태그나 시간대별 계량 기록이 필요합니다.</div>
+  </div>
+ </section>
+ <section id="materials" class="section">
+  <div class="page-title"><div><h2>원자재 잔량·생산 가능량 예측</h2><p>병목 원자재 기준으로 생산 가능량을 계산하는 입력형 시제품입니다.</p></div><span class="tag">사일로·생산 예측</span></div>
+  <div class="card"><div class="card-head"><h3>원자재 잔량 및 제품 1톤당 소요량</h3><small>같은 질량 단위로 입력</small></div><div class="form-grid">
+   <div class="field"><label>원자재 A 잔량 (kg)</label><input type="number" id="stockA" min="0" value="12000"></div><div class="field"><label>A 소요량 (kg/제품 ton)</label><input type="number" id="useA" min="0.001" value="400" step=".1"></div><div class="field"><label>A 적용 호기</label><select id="lineA"><option>공통</option><option>1호기</option><option>2호기</option><option>3호기</option></select></div>
+   <div class="field"><label>원자재 B 잔량 (kg)</label><input type="number" id="stockB" min="0" value="8500"></div><div class="field"><label>B 소요량 (kg/제품 ton)</label><input type="number" id="useB" min="0.001" value="300" step=".1"></div><div class="field"><label>B 적용 호기</label><select id="lineB"><option>공통</option><option>1호기</option><option>2호기</option><option>3호기</option></select></div>
+   <div class="field"><label>원자재 C 잔량 (kg)</label><input type="number" id="stockC" min="0" value="6000"></div><div class="field"><label>C 소요량 (kg/제품 ton)</label><input type="number" id="useC" min="0.001" value="250" step=".1"></div><div class="field"><label>C 적용 호기</label><select id="lineC"><option>공통</option><option>1호기</option><option>2호기</option><option>3호기</option></select></div>
+  </div><div style="margin-top:15px"><button class="btn" onclick="calcMaterials()">생산 가능량 계산</button> <button class="btn secondary" onclick="resetMaterials()">예시값 복원</button></div><div id="materialOutput" class="result"><div class="muted small">초기 예시값으로 계산된 결과는 실제 재고가 아닌 데모입니다.</div><div class="big">20.0 톤</div><div class="small">가장 먼저 소진되는 원자재: A · 예시값 기준</div></div></div>
+  <div class="card" style="margin-top:14px">
+   <div class="card-head"><h3>사일로별 마감 재고 · 긴급 발주 확인</h3><small>현재 용량과 원료 지정 반영</small></div>
+   <p class="muted" style="line-height:1.8">마감 때 확인한 잔량(톤)을 입력하세요. 재고가 0톤이면 긴급 발주, 다음날 계획 소요량보다 적으면 발주 필요로 표시합니다. 6번 사일로는 미분/석탄재를 실제 생산 상황에 맞게 선택합니다.</p>
+   <div class="field" style="max-width:320px;margin-bottom:12px"><label>6번 사일로 현재 원료</label><select id="silo6Material"><option value="미분">미분</option><option value="석탄재">석탄재</option></select></div>
+   <div class="table-wrap"><table><thead><tr><th>사일로</th><th>원료</th><th>용량(T)</th><th>마감 잔량(T)</th><th>상태</th></tr></thead><tbody id="siloRows"></tbody></table></div>
+   <div style="margin-top:12px"><button class="btn" onclick="saveSiloInventory()">사일로 잔량 저장</button><button class="btn secondary" onclick="checkUrgentOrder()">긴급 발주 확인</button></div>
+   <div id="siloStatus" class="result"><div class="muted small">마감 잔량을 입력하고 확인을 누르면 발주 필요 원료를 표시합니다.</div></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+   <div class="card-head"><h3>다음 날 2·3호기 생산 가능량 예측</h3><small>로타리 패커 전용</small></div>
+   <p class="muted">금일 패커 생산량과 가동시간으로 시간당 생산속도를 계산합니다. 다음 날 계획 가동시간과 사일로 재고를 반영해 예상 생산 가능 포대를 계산합니다.</p>
+   <div class="form-grid">
+    <div class="field"><label>다음 날 계획 가동시간 (시간)</label><input id="nextRunHours" type="number" min="0" step=".5" value="8"></div>
+    <div class="field"><label>2·3호기 생산 제품</label><select id="forecastProduct"><option value="미장40">미장 40kg</option><option value="미장25">미장 25kg</option><option value="타일40">타일 떠붙임 40kg</option></select></div>
+    <div class="field"><label>계획일</label><input id="forecastDate" type="date"></div>
+   </div>
+   <div style="margin-top:12px"><button class="btn" onclick="forecastNextDay()">다음 날 생산량 계산</button></div>
+   <div id="nextDayOutput" class="result"><div class="muted small">먼저 로타리 패커 탭에 금일 생산량·가동시간을 입력하고, 사일로 마감 잔량을 저장하세요.</div></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+   <div class="card-head"><h3>평일 목표 생산량별 원료 소요량</h3><small>현재 입력된 임시 배합 기준</small></div>
+   <p class="muted">아래 계산은 사용자가 알려준 3.3톤 배합을 임시 기준으로 사용합니다. 제품별 실제 배합은 내일 제공할 사진을 반영해야 합니다. 현재 입력된 원료 합계는 3,299kg이며, 보고된 총량 3,300kg과 1kg 차이가 있어 차이를 임의로 보정하지 않고 3,300kg 기준으로 비율 환산합니다.</p>
+   <div class="form-grid">
+    <div class="field"><label>포대 중량</label><select id="targetBagWeight"><option value="40">40kg 포대</option><option value="25">25kg 포대</option></select></div>
+    <div class="field"><label>목표 생산량</label><select id="targetBags"><option value="20000">20,000포</option><option value="25000">25,000포</option></select></div>
+   </div>
+   <div style="margin-top:12px"><button class="btn" onclick="calcTargetMaterials()">원료 소요량 계산</button></div>
+   <div id="targetMaterialOutput" class="result"><div class="muted small">목표 포대 수와 포대 중량을 선택한 후 계산하세요.</div></div>
+  </div>
+  <div class="grid layout2" style="margin-top:14px"><div class="card"><div class="card-head"><h3>사일로 정보</h3></div><ul class="muted" style="line-height:1.9;padding-left:20px"><li>1번: 시멘트 200T</li><li>2·4번: S2 각 100T</li><li>3번: 슬래그파우더 100T</li><li>5번: 시멘트 100T</li><li>6번: 미분 또는 석탄재 100T</li><li>7·9번: S1 각 100T</li><li>8번: 채움재 100T</li><li>10번: 백시멘트 40T</li><li>11번: 규사 40T</li></ul></div><div class="card"><div class="card-head"><h3>예측 시 주의사항</h3></div><p class="muted" style="line-height:1.8">다음 날 생산량은 패커 속도와 원료 재고 중 더 작은 조건에 제한됩니다. 현재 배합은 제품별 레시피가 아닌 임시 참고값이며, 25kg 제품 및 타일 떠붙임의 실제 배합이 확인되면 제품별로 다시 계산해야 합니다. 평일 목표는 생산 계획 입력값이며 자동으로 평일 달력을 판정하지 않습니다.</p></div></div>
+ </section>
+ <section id="utilities" class="section">
+  <div class="page-title"><div><h2>가스·모래 사용량</h2><p>누적계 차분과 생산량을 결합해 일일 사용량 및 톤당 원단위를 계산합니다.</p></div><span class="tag">실제 계량기 태그 연결 필요</span></div>
+  <div class="warning"><strong>단위 확인 필수:</strong> 가스는 계량기 보정 조건과 단위, 모래는 계량 방식(로드셀·배치 중량·재고 차분)을 확인하기 전까지 수치를 비교할 수 없습니다.</div>
+  <div class="card"><div class="card-head"><h3>계량기 값 입력</h3><small>시작/종료 누적값</small></div><div class="form-grid">
+   <div class="field"><label>가스 시작 누적값 (계량기 단위)</label><input id="gasStart" type="number" min="0" step=".01" placeholder="예: 12500.00"></div><div class="field"><label>가스 종료 누적값</label><input id="gasEnd" type="number" min="0" step=".01" placeholder="예: 12620.50"></div><div class="field"><label>가스 단위</label><select id="gasUnit"><option>Nm³</option><option>m³</option><option>kg</option><option>기타(현장 확인)</option></select></div>
+   <div class="field"><label>모래 시작 재고 (kg)</label><input id="sandStart" type="number" min="0" placeholder="시작 재고"></div><div class="field"><label>모래 종료 재고 (kg)</label><input id="sandEnd" type="number" min="0" placeholder="종료 재고"></div><div class="field"><label>기간 생산량 (톤)</label><input id="utilityProd" type="number" min="0.001" step=".1" placeholder="동일 기간 생산량"></div>
+  </div><div style="margin-top:15px"><button class="btn" onclick="calcUtilities()">사용량 계산</button></div><div id="utilityOutput" class="result"><div class="muted small">실제 값을 입력하면 기간 사용량과 톤당 사용량을 계산합니다.</div></div></div>
+  <div class="card" style="margin-top:14px"><div class="card-head"><h3>운영 시 주의점</h3></div><ul class="muted" style="line-height:1.9;padding-left:20px"><li>가스 종료 누적값이 시작값보다 작으면 계량기 초기화/교체 여부를 확인해야 합니다.</li><li>모래 사용량은 단순 재고 차분 외에 입고·반품·이송량을 반영해야 정확합니다.</li><li>톤당 사용량 비교는 같은 제품군, 같은 기간, 동일한 생산량 기준으로 비교해야 합니다.</li><li>실시간 경보보다 일별 집계는 시간대·교대조 기준을 명확히 정해야 합니다.</li></ul></div>
+ </section>
+ <section id="alarms" class="section">
+  <div class="page-title"><div><h2>설비 오류 이력</h2><p>발생·복구 시각, 설비 태그, 알람 코드, 조치 내용을 추적합니다.</p></div><button class="btn secondary" onclick="exportAlarms()">CSV 내보내기</button></div>
+  <div class="grid kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="card"><div class="kpi-label">예시 알람 건수</div><div class="kpi-value">3</div><div class="kpi-sub">데모 이벤트</div></div><div class="card"><div class="kpi-label">확인 필요</div><div class="kpi-value" style="color:var(--yellow)">1</div><div class="kpi-sub">실제 상태 아님</div></div><div class="card"><div class="kpi-label">MTTR 평균</div><div class="kpi-value">—</div><div class="kpi-sub">복구 시각 데이터 연결 후 산출</div></div></div>
+  <div class="card"><div class="card-head"><h3>알람 이력</h3><div class="field"><select id="alarmFilter" onchange="renderAlarms()" style="padding:7px"><option value="all">전체 설비</option><option value="SC201">SC201</option><option value="RF201">RF201</option><option value="패커">로터리 패커</option></select></div></div><div class="table-wrap"><table><thead><tr><th>발생 시각</th><th>복구 시각</th><th>설비/태그</th><th>알람 코드</th><th>내용</th><th>심각도</th><th>조치 메모</th></tr></thead><tbody id="alarmRows"></tbody></table></div></div>
+  <div class="card" style="margin-top:14px"><div class="card-head"><h3>알람 데이터 모델 권장 필드</h3></div><p class="muted" style="line-height:1.8">event_id · tag_name · equipment_name · alarm_code · message · severity · occurred_at · acknowledged_at · cleared_at · operator_id(권한 정책 확인) · action_note · source_system · raw_value</p></div>
+ </section>
+ <section id="integration" class="section">
+  <div class="page-title"><div><h2>실제 데이터 연동 설계</h2><p>현재는 연결하지 않았으며, 공장 IT/자동화 담당자와 아래 경로를 확인해야 합니다.</p></div><span class="tag">읽기 전용 우선</span></div>
+  <div class="grid layout2">
+   <div class="card"><div class="card-head"><h3>권장 아키텍처</h3></div><svg viewBox="0 0 560 380" style="width:100%;height:auto"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#5b9cff"/></marker></defs><g font-family="Arial" text-anchor="middle"><rect x="110" y="12" width="340" height="55" rx="10" fill="#182b47" stroke="#4c75aa"/><text x="280" y="34" fill="#eef5ff" font-size="14">PLC / 계량기 / 설비 센서</text><text x="280" y="51" fill="#9fb4d4" font-size="10">현장 자동화 계층</text><path d="M280 67V100" stroke="#5b9cff" stroke-width="2" marker-end="url(#arr)"/><rect x="110" y="105" width="340" height="55" rx="10" fill="#182b47" stroke="#4c75aa"/><text x="280" y="127" fill="#eef5ff" font-size="14">SCADA / Historian / 기존 MES</text><text x="280" y="144" fill="#9fb4d4" font-size="10">승인된 데이터 인터페이스</text><path d="M280 160V193" stroke="#5b9cff" stroke-width="2" marker-end="url(#arr)"/><rect x="110" y="198" width="340" height="55" rx="10" fill="#19352f" stroke="#3c9d7c"/><text x="280" y="220" fill="#eef5ff" font-size="14">읽기 전용 수집 서비스 / API</text><text x="280" y="237" fill="#a8e4d0" font-size="10">인증 · 태그 매핑 · 검증 · 감사 로그</text><path d="M280 253V286" stroke="#5b9cff" stroke-width="2" marker-end="url(#arr)"/><rect x="110" y="291" width="340" height="55" rx="10" fill="#243553" stroke="#5b9cff"/><text x="280" y="313" fill="#eef5ff" font-size="14">COP MES 웹 대시보드</text><text x="280" y="330" fill="#b8d2ff" font-size="10">KPI · 알람 이력 · 예측 · 보고서</text></g></svg><p class="muted small">브라우저가 PLC에 직접 연결되는 구조는 피하고, 승인된 서버/API 또는 Historian을 중간 계층으로 둡니다.</p></div>
+   <div class="card"><div class="card-head"><h3>연동 전 확인 체크리스트</h3></div><div id="checklist">
+    <label style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)"><input type="checkbox"> SCADA/PLC 브랜드·모델 및 통신 방식 확인</label>
+    <label style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)"><input type="checkbox"> OPC UA, Modbus TCP, API, DB 중 승인된 접근 방식 확인</label>
+    <label style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)"><input type="checkbox"> 태그명·주소·단위·샘플링 주기 목록 확보</label>
+    <label style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)"><input type="checkbox"> 생산량 집계 기준과 교대/일자 경계 정의</label>
+    <label style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)"><input type="checkbox"> 계정 권한·망분리·방화벽·보안 검토</label>
+    <label style="display:flex;gap:10px;padding:11px 0"><input type="checkbox"> 과거 데이터 대조 및 현장 검증 담당자 지정</label>
+   </div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><div class="card-head"><h3>태그 매핑 템플릿</h3><button class="btn secondary" onclick="exportTags()">CSV 템플릿 다운로드</button></div><div class="table-wrap"><table><thead><tr><th>기능</th><th>필요 태그 예시(가칭)</th><th>데이터 형식</th><th>단위/정의</th></tr></thead><tbody>
+   <tr><td>호기 생산량</td><td>LINE1_PROD_TOTAL</td><td>누적 카운터/중량</td><td>ton 또는 kg</td></tr><tr><td>패커 포대 수</td><td>PACKER_BAG_COUNT</td><td>누적 정수 카운터</td><td>bag</td></tr><tr><td>가스 사용량</td><td>GAS_TOTALIZER</td><td>누적 계량값</td><td>현장 계량 단위</td></tr><tr><td>모래 투입량</td><td>SAND_BATCH_WEIGHT</td><td>배치별 중량/누적값</td><td>kg</td></tr><tr><td>설비 알람</td><td>EQUIPMENT_ALARM_CODE</td><td>코드/상태 비트</td><td>코드 사전 필요</td></tr><tr><td>설비 운전 상태</td><td>LINE_RUN_STATUS</td><td>Boolean/Enum</td><td>운전·정지·고장 정의</td></tr>
+  </tbody></table></div><p class="small muted">위 태그명은 설계 예시이며 실제 PLC 주소나 현재 공장 태그가 아닙니다.</p></div>
+ </section>
+ <div class="footer">COP MES 시제품 · 단일 HTML 파일 · 데이터 저장/전송/실시간 연동 없음 · 실제 현장 적용 전 생산·품질·자동화·보안 담당자 검증 필요</div>
+</main>
+<script>
+const demoAlarms=[
+ {time:"07:21:26",clear:"07:21:27",equip:"SC201",code:"ALM-EX01",msg:"컨베이어 상태 신호 변동 (예시)",sev:"주의",note:"시제품 예시 이벤트"},
+ {time:"07:21:26",clear:"미복구",equip:"RF201",code:"ALM-EX02",msg:"회전 구동부 알람 (예시)",sev:"확인 필요",note:"실제 고장 정보 아님"},
+ {time:"06:58:28",clear:"06:58:36",equip:"패커",code:"ALM-EX03",msg:"포장 설비 신호 이벤트 (예시)",sev:"정보",note:"시제품 예시 이벤트"}
+];
+function showTab(id){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+function renderAlarms(){let f=document.getElementById('alarmFilter')?.value||'all';let rows=demoAlarms.filter(a=>f==='all'||a.equip===f).map(a=>`<tr><td>${a.time}</td><td>${a.clear}</td><td>${a.equip}</td><td>${a.code}</td><td>${a.msg}</td><td><span class="pill ${a.sev==='확인 필요'?'red':a.sev==='주의'?'yellow':'green'}">${a.sev}</span></td><td>${a.note}</td></tr>`).join('');document.getElementById('alarmRows').innerHTML=rows||'<tr><td colspan="7">해당 이벤트 없음</td></tr>'}
+function renderRecent(){document.getElementById('recentAlarms').innerHTML=demoAlarms.map(a=>`<tr><td>${a.time}</td><td>${a.equip}</td><td>${a.msg}</td><td><span class="pill ${a.sev==='확인 필요'?'red':a.sev==='주의'?'yellow':'green'}">${a.sev}</span></td></tr>`).join('')}
+function resetDemo(){renderRecent();renderAlarms();alert('예시 화면을 다시 표시했습니다. 실제 데이터는 저장·변경되지 않습니다.')}
+function calcMaterials(){let names=['A','B','C'],stock=['stockA','stockB','stockC'].map(id=>Number(document.getElementById(id).value)),uses=['useA','useB','useC'].map(id=>Number(document.getElementById(id).value));if(stock.some(v=>!Number.isFinite(v)||v<0)||uses.some(v=>!Number.isFinite(v)||v<=0)){alert('잔량은 0 이상, 소요량은 0보다 큰 수를 입력하세요.');return}let caps=stock.map((s,i)=>s/uses[i]),min=Math.min(...caps),idx=caps.indexOf(min);document.getElementById('materialOutput').innerHTML=`<div class="muted small">입력값 기준 계산 결과 · 실제 재고/배합 검증 필요</div><div class="big">${min.toLocaleString('ko-KR',{maximumFractionDigits:2})} 톤</div><div class="small">병목 원자재: ${names[idx]} · 원자재별 가능량: ${caps.map((v,i)=>names[i]+' '+v.toLocaleString('ko-KR',{maximumFractionDigits:2})+'톤').join(' / ')}</div>`}
+function resetMaterials(){[['stockA',12000],['useA',400],['stockB',8500],['useB',300],['stockC',6000],['useC',250]].forEach(([id,v])=>document.getElementById(id).value=v);calcMaterials()}
+function calcUtilities(){let gs=val('gasStart'),ge=val('gasEnd'),ss=val('sandStart'),se=val('sandEnd'),p=val('utilityProd'),out=[];if(gs!==null&&ge!==null){if(ge<gs)out.push('가스 누적값이 감소했습니다. 계량기 초기화·교체·입력 오류를 확인하세요.');else out.push(`가스 사용량: ${(ge-gs).toLocaleString('ko-KR',{maximumFractionDigits:3})} ${document.getElementById('gasUnit').value}`+(p>0?` · 톤당 ${((ge-gs)/p).toLocaleString('ko-KR',{maximumFractionDigits:4})} ${document.getElementById('gasUnit').value}/ton`:''))}if(ss!==null&&se!==null){if(ss<se)out.push('모래 종료 재고가 시작 재고보다 많습니다. 입고·이송량을 포함해 계산해야 합니다.');else out.push(`모래 재고 감소량: ${(ss-se).toLocaleString('ko-KR',{maximumFractionDigits:2})} kg`+(p>0?` · 톤당 ${((ss-se)/p).toLocaleString('ko-KR',{maximumFractionDigits:3})} kg/ton`:''))}if(!out.length)out.push('가스 또는 모래의 시작값과 종료값을 입력하세요.');document.getElementById('utilityOutput').innerHTML='<div class="small" style="line-height:2">'+out.map(x=>'• '+x).join('<br>')+'</div>'}
+function val(id){let e=document.getElementById(id);if(!e||e.value.trim()==='')return null;let n=Number(e.value);return Number.isFinite(n)?n:null}
+let prodRecords=[];
+function addProduction(){let date=document.getElementById('prodDate').value,line=document.getElementById('prodLine').value,q=val('prodQty'),h=val('runHours'),t=val('prodTarget');if(!date||q===null||q<0){alert('기준일과 0 이상의 생산량을 입력하세요.');return}prodRecords.unshift({date,line,q,h,t});document.getElementById('prodRows').innerHTML=prodRecords.map(r=>`<tr><td>${r.date}</td><td>${r.line}</td><td>${r.q.toLocaleString()} ton</td><td>${r.h===null?'—':r.h+' h'}</td><td>${r.h>0?(r.q/r.h).toFixed(2)+' ton/h':'—'}</td><td>${r.t>0?(r.q/r.t*100).toFixed(1)+'%':'—'}</td></tr>`).join('');document.getElementById('prodResult').textContent='현재 브라우저 메모리에 기록했습니다. 새로고침하면 사라지며 서버에 저장되지 않습니다.'}
+function csvDownload(filename,rows){let csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download=filename;a.click();URL.revokeObjectURL(a.href)}
+function exportAlarms(){csvDownload('cop_mes_alarm_demo.csv',[['발생시각','복구시각','설비','알람코드','내용','심각도','조치메모'],...demoAlarms.map(a=>[a.time,a.clear,a.equip,a.code,a.msg,a.sev,a.note])])}
+function exportTags(){csvDownload('cop_mes_tag_mapping_template.csv',[['기능','태그명(가칭)','데이터형식','단위/정의','실제 태그명','주소','확인 담당자'],['호기 생산량','LINE1_PROD_TOTAL','누적 카운터/중량','ton 또는 kg','','',''],['패커 포대 수','PACKER_BAG_COUNT','누적 정수 카운터','bag','','',''],['가스 사용량','GAS_TOTALIZER','누적 계량값','현장 단위','','',''],['모래 투입량','SAND_BATCH_WEIGHT','배치별 중량/누적값','kg','','',''],['설비 알람','EQUIPMENT_ALARM_CODE','코드/상태 비트','코드 사전 필요','','',''],['운전 상태','LINE_RUN_STATUS','Boolean/Enum','운전·정지·고장','','','']])}
+function makePackerInputs(){
+ const sp=document.getElementById('spoutInputs');
+ sp.innerHTML=Array.from({length:8},(_,i)=>`<div class="field"><label>${i+1}번 스파우트 (포)</label><input id="spout${i+1}" type="number" min="0" step="1" placeholder="실제 카운터값"></div>`).join('');
+ const hr=document.getElementById('packerHourlyRows');
+ hr.innerHTML=Array.from({length:24},(_,h)=>{const a=String(h).padStart(2,'0'),b=String((h+1)%24).padStart(2,'0');return `<tr><td>${a}:00–${b}:00</td><td><input id="packerHour${h}" type="number" min="0" step="1" placeholder="미입력" style="width:125px;background:#0b1424;color:var(--text);border:1px solid #30415f;border-radius:7px;padding:8px"></td><td><select id="packerRun${h}" style="background:#0b1424;color:var(--text);border:1px solid #30415f;border-radius:7px;padding:8px"><option value="">미확인</option><option value="yes">가동</option><option value="no">정지</option></select></td><td id="packerRate${h}">—</td></tr>`}).join('');
+}
+function fmtPacker(n){return n===null||!Number.isFinite(n)?'—':Math.round(n).toLocaleString('ko-KR')}
+function calcPackerSummary(){
+ const today=val('packerToday'),th=val('packerTodayHours'),prev=val('packerPrev'),ph=val('packerPrevHours');
+ const box=document.getElementById('packerSummary');
+ if((today!==null&&today<0)||(prev!==null&&prev<0)||(th!==null&&th<0)||(ph!==null&&ph<0)){alert('생산량과 가동시간은 0 이상으로 입력하세요.');return}
+ const rate=today!==null&&th!==null&&th>0?today/th:null,prate=prev!==null&&ph!==null&&ph>0?prev/ph:null;
+ box.innerHTML=`<div class="grid layout2"><div><div class="small muted">금일 평균 생산 속도</div><div class="big">${rate===null?'—':rate.toLocaleString('ko-KR',{maximumFractionDigits:1})+' 포/시간'}</div><div class="small muted">생산량 ${fmtPacker(today)}포 · 가동 ${th===null?'—':th+'시간'}</div></div><div><div class="small muted">전일 평균 생산 속도</div><div class="big">${prate===null?'—':prate.toLocaleString('ko-KR',{maximumFractionDigits:1})+' 포/시간'}</div><div class="small muted">생산량 ${fmtPacker(prev)}포 · 가동 ${ph===null?'—':ph+'시간'}</div></div></div>${rate!==null&&prate!==null?`<div class="small" style="margin-top:10px">전일 대비 시간당 생산 속도 ${rate-prate>=0?'증가':'감소'} ${Math.abs(rate-prate).toLocaleString('ko-KR',{maximumFractionDigits:1})} 포/시간</div>`:''}`;
+ const avg=document.getElementById('packerHourlyAverage');if(avg)avg.innerHTML=`<div class="grid layout2"><div><div class="small muted">금일 시간당 평균</div><div class="big">${rate===null?'—':rate.toLocaleString('ko-KR',{maximumFractionDigits:1})+' 포/시간'}</div><div class="small muted">${fmtPacker(today)}포 ÷ ${th===null?'—':th+'시간'}</div></div><div><div class="small muted">전일 시간당 평균</div><div class="big">${prate===null?'—':prate.toLocaleString('ko-KR',{maximumFractionDigits:1})+' 포/시간'}</div><div class="small muted">${fmtPacker(prev)}포 ÷ ${ph===null?'—':ph+'시간'}</div></div></div><div class="small muted" style="margin-top:8px">예: 10,000포 ÷ 5시간 = 2,000포/시간. 시간대별 실제 생산량이 아닌 가동시간 기준 평균입니다.</div>`;
+}
+function calcSpouts(){
+ const vals=Array.from({length:8},(_,i)=>val('spout'+(i+1))),entered=vals.filter(v=>v!==null),total=entered.reduce((a,b)=>a+b,0),daily=val('packerToday');
+ if(vals.some(v=>v!==null&&(!Number.isInteger(v)||v<0))){alert('스파우트별 생산량은 0 이상의 정수(포)로 입력하세요.');return}
+ const box=document.getElementById('spoutSummary');
+ if(!entered.length){box.innerHTML='<div class="muted small">스파우트별 값이 아직 입력되지 않았습니다.</div>';return}
+ const all=entered.length===8,delta=daily===null?null:total-daily;
+ box.innerHTML=`<div class="big">${fmtPacker(total)} 포</div><div class="small muted">${all?'8개 스파우트 전체 입력 완료':'현재 '+entered.length+' / 8개 스파우트 입력됨'} · 입력된 스파우트 합계</div>${delta===null?'':`<div class="small" style="margin-top:8px">금일 총생산량 대비 ${delta===0?'일치':(delta>0?'스파우트 합계가 ':'금일 총생산량이 ')+fmtPacker(Math.abs(delta))+'포 '+(delta>0?'많습니다':'많습니다')}.</div>`}<div class="table-wrap" style="margin-top:10px"><table><thead><tr><th>스파우트</th><th>생산량</th><th>전체 입력 합계 중 비중</th></tr></thead><tbody>${vals.map((v,i)=>`<tr><td>${i+1}번</td><td>${fmtPacker(v)}</td><td>${v===null||total===0?'—':(v/total*100).toFixed(1)+'%'}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function calcHourlyPacker(){
+ let total=0,known=0,invalid=false;const th=val('packerTodayHours');
+ for(let h=0;h<24;h++){const v=val('packerHour'+h),run=document.getElementById('packerRun'+h).value;if(v!==null){if(!Number.isInteger(v)||v<0)invalid=true;else{total+=v;known++;document.getElementById('packerRate'+h).textContent=run==='yes'?v.toLocaleString('ko-KR')+' 포/시간':'—'}}else document.getElementById('packerRate'+h).textContent='—'}
+ if(invalid){alert('시간대별 생산량은 0 이상의 정수(포)로 입력하세요.');return}
+ document.getElementById('packerHourlyTotal').textContent=known?total.toLocaleString('ko-KR')+' 포':'—';
+ const daily=val('packerToday');
+ document.getElementById('packerHourlyCheck').textContent=!known?'시간대별 실적 미입력':daily===null?'입력 '+known+'개 시간대':total===daily?'금일 총생산량과 일치':`금일 총생산량과 ${Math.abs(total-daily).toLocaleString('ko-KR')}포 차이`;
+}
+function clearPackerInputs(){['packerToday','packerTodayHours','packerPrev','packerPrevHours','packerProductDetected'].forEach(id=>document.getElementById(id).value='');for(let i=1;i<=8;i++)document.getElementById('spout'+i).value='';for(let h=0;h<24;h++){document.getElementById('packerHour'+h).value='';document.getElementById('packerRun'+h).value='';document.getElementById('packerRate'+h).textContent='—'}document.getElementById('packerSummary').innerHTML='<div class="muted small">금일 생산량과 가동시간을 입력하면 시간당 평균 포대 생산량을 계산합니다.</div>';document.getElementById('spoutSummary').innerHTML='<div class="muted small">스파우트별 값이 아직 입력되지 않았습니다.</div>';document.getElementById('packerHourlyTotal').textContent='—';document.getElementById('packerHourlyCheck').textContent='시간대별 실적 미입력';document.getElementById('packerHourlyAverage').innerHTML='<div class="muted small">금일·전일 생산량과 가동시간을 입력하면 시간당 평균 포대 수가 여기에 표시됩니다.</div>'}
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+document.getElementById('prodDate').value=new Date().toISOString().slice(0,10);document.getElementById('packerDate').value=new Date().toISOString().slice(0,10);makePackerInputs();tick();setInterval(tick,1000);renderRecent();renderAlarms();calcMaterials();
+
+const siloMaster = [
+ {no:1,material:'시멘트',capacity:200,id:'silo1'},
+ {no:2,material:'S2',capacity:100,id:'silo2'},
+ {no:3,material:'슬래그파우더',capacity:100,id:'silo3'},
+ {no:4,material:'S2',capacity:100,id:'silo4'},
+ {no:5,material:'시멘트',capacity:100,id:'silo5'},
+ {no:6,material:'동적',capacity:100,id:'silo6'},
+ {no:7,material:'S1',capacity:100,id:'silo7'},
+ {no:8,material:'채움재',capacity:100,id:'silo8'},
+ {no:9,material:'S1',capacity:100,id:'silo9'},
+ {no:10,material:'백시멘트',capacity:40,id:'silo10'},
+ {no:11,material:'규사',capacity:40,id:'silo11'}
+];
+const siloStock = {};
+function buildSiloRows(){
+ const body=document.getElementById('siloRows'); if(!body)return;
+ body.innerHTML=siloMaster.map(x=>`<tr><td>${x.no}번</td><td>${x.no===6?`<span id="silo6Label">${document.getElementById('silo6Material')?.value||'미분'}</span>`:x.material}</td><td>${x.capacity}</td><td><input aria-label="${x.no}번 사일로 잔량" id="${x.id}" type="number" min="0" max="${x.capacity}" step=".1" placeholder="톤" style="width:100px;padding:6px"></td><td id="status_${x.no}">미확인</td></tr>`).join('');
+ for(const x of siloMaster){if(siloStock[x.no]!==undefined)document.getElementById(x.id).value=siloStock[x.no]}
+}
+function materialRecipe(){
+ const total=3300;
+ return [
+  {name:'S2',kg:726,silos:[2,4]},
+  {name:'S1',kg:1846,silos:[7,9]},
+  {name:'슬래그파우더',kg:132,silos:[3]},
+  {name:'시멘트',kg:495,silos:[1,5]},
+  {name:document.getElementById('silo6Material')?.value||'미분',kg:100,silos:[6]}
+ ].map(x=>({...x,kgPerTon:x.kg/total*1000}));
+}
+function saveSiloInventory(){
+ for(const x of siloMaster){
+  const el=document.getElementById(x.id); const v=el.value===''?null:Number(el.value);
+  if(v!==null&&(!Number.isFinite(v)||v<0||v>x.capacity)){alert(`${x.no}번 사일로 잔량은 0~${x.capacity}톤으로 입력하세요.`);return}
+  siloStock[x.no]=v;
+ }
+ localStorage.setItem('copMesSiloStock',JSON.stringify(siloStock));
+ checkUrgentOrder();
+}
+function checkUrgentOrder(){
+ const mat=materialRecipe(); const rows=[];
+ for(const x of siloMaster){
+  const el=document.getElementById(x.id);const v=el?.value===''?null:Number(el?.value);
+  const material=x.no===6?(document.getElementById('silo6Material')?.value||'미분'):x.material;
+  const st=document.getElementById(`status_${x.no}`);
+  let status='잔량 미입력';
+  if(v===0){status='긴급 발주 필요';}
+  else if(v!==null&&Number.isFinite(v)&&v>0){status='잔량 있음';}
+  if(st)st.innerHTML=v===0?'<span style="color:var(--red);font-weight:700">긴급 발주 필요</span>':v===null?'미입력':`<span style="color:var(--green)">잔량 ${v.toFixed(1)}T</span>`;
+  if(v===0)rows.push(`${x.no}번 ${material}: 잔량 0T — 긴급 발주 필요`);
+ }
+ const out=document.getElementById('siloStatus');
+ if(out)out.innerHTML=rows.length?`<strong style="color:var(--red)">긴급 발주 대상</strong><ul>${rows.map(x=>`<li>${x}</li>`).join('')}</ul>`:'<strong>현재 입력된 재고 중 0톤인 사일로는 없습니다.</strong><div class="small muted">다음 날 계획 소요량보다 적은 원료는 생산량 예측 후 별도로 확인됩니다.</div>';
+}
+function forecastNextDay(){
+ const today=Number(document.getElementById('packerToday')?.value);
+ const hours=Number(document.getElementById('packerTodayHours')?.value);
+ const nextHours=Number(document.getElementById('nextRunHours')?.value);
+ const product=document.getElementById('forecastProduct')?.value||'미장40';
+ const bagWeight=product==='미장25'?25:40;
+ const out=document.getElementById('nextDayOutput');
+ if(!Number.isFinite(today)||today<0||!Number.isFinite(hours)||hours<=0||!Number.isFinite(nextHours)||nextHours<0){
+  out.innerHTML='<span style="color:var(--red)">로타리 패커 탭에서 금일 생산량과 0보다 큰 가동시간을 입력하고, 다음 날 계획 가동시간도 확인하세요.</span>';return;
+ }
+ const rate=today/hours;
+ const packerCapacity=Math.floor(rate*nextHours);
+ const recipe=materialRecipe();
+ const batchBags=3300/bagWeight;
+ const stockByMat={};
+ for(const r of recipe){
+  const relevant=siloMaster.filter(s=>r.silos.includes(s.no));
+  let stock=0;const known=relevant.length>0&&relevant.every(sl=>siloStock[sl.no]!==undefined&&siloStock[sl.no]!==null&&Number.isFinite(siloStock[sl.no]));
+  if(known){for(const sl of relevant)stock+=siloStock[sl.no]*1000;}
+  // Shared raw-material stock is considered known only when every listed silo for that material has a recorded closeout value.
+  stockByMat[r.name]=known?Math.floor(stock/(r.kg/3300*bagWeight)):null;
+ }
+ const knownLimits=Object.values(stockByMat).filter(v=>v!==null);
+ const materialCapacity=knownLimits.length?Math.min(...knownLimits):null;
+ const estimate=materialCapacity===null?packerCapacity:Math.min(packerCapacity,materialCapacity);
+ const missing=recipe.filter(r=>stockByMat[r.name]===0);
+ let html=`<div class="big">${estimate.toLocaleString('ko-KR')}포</div><div class="small">제품: ${product==='미장40'?'미장 40kg':product==='미장25'?'미장 25kg':'타일 떠붙임 40kg'} · 최근 평균 ${rate.toLocaleString('ko-KR',{maximumFractionDigits:1})}포/가동시간 × ${nextHours}시간 = 패커 기준 ${packerCapacity.toLocaleString('ko-KR')}포</div>`;
+ html+='<h4 style="margin:12px 0 6px">원료별 재고 기준 생산 가능량</h4><ul>'+recipe.map(r=>`<li>${r.name}: ${stockByMat[r.name]===null?'재고 미입력':stockByMat[r.name].toLocaleString('ko-KR')+'포까지'}</li>`).join('')+'</ul>';
+ if(missing.length)html+=`<div class="alert"><strong>긴급 발주 필요:</strong> ${missing.map(x=>x.name).join(', ')} 재고가 0으로 입력되어 있습니다.</div>`;
+ if(materialCapacity===null)html+='<div class="small" style="color:var(--yellow)">재고를 충분히 입력하지 않아 위 생산 가능량은 패커 속도만 반영했을 수 있습니다.</div>';
+ else if(materialCapacity<packerCapacity)html+='<div class="alert"><strong>원료가 생산량 제한:</strong> 원료 재고 기준 생산 가능량이 패커 예상 처리량보다 적습니다. 해당 원료 발주를 검토하세요.</div>';
+ out.innerHTML=html;
+}
+function calcTargetMaterials(){
+ const bags=Number(document.getElementById('targetBags').value);
+ const bagWeight=Number(document.getElementById('targetBagWeight').value);
+ const productKg=bags*bagWeight;
+ const recipe=materialRecipe();
+ const out=document.getElementById('targetMaterialOutput');
+ out.innerHTML=`<div class="big">${bags.toLocaleString('ko-KR')}포 × ${bagWeight}kg = ${(productKg/1000).toLocaleString('ko-KR')}톤</div><div class="table-wrap"><table><thead><tr><th>원료</th><th>배합 기준(kg/3,300kg)</th><th>예상 소요량(톤)</th><th>공급 사일로</th></tr></thead><tbody>${recipe.map(r=>`<tr><td>${r.name}</td><td>${r.kg.toLocaleString('ko-KR')}</td><td>${(productKg*r.kg/3300/1000).toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td>${r.silos.map(n=>n+'번').join(', ')}</td></tr>`).join('')}</tbody></table></div><p class="small muted">현재 입력된 배합 합계는 ${(recipe.reduce((a,r)=>a+r.kg,0)).toLocaleString('ko-KR')}kg입니다. 보고된 3,300kg 대비 차이가 있어, 3,300kg을 환산 기준으로 사용했습니다. 실제 제품별 배합표 확인 후 업데이트해야 합니다.</p>`;
+}
+document.getElementById('silo6Material')?.addEventListener('change',()=>{
+ const label=document.getElementById('silo6Label');if(label)label.textContent=document.getElementById('silo6Material').value;
+ if(document.getElementById('siloStatus'))checkUrgentOrder();
+});
+try{
+ const saved=JSON.parse(localStorage.getItem('copMesSiloStock')||'{}');
+ Object.assign(siloStock,saved);
+}catch(e){}
+buildSiloRows();
+
+
+const fd=document.getElementById('forecastDate');
+if(fd&&!fd.value){const d=new Date();d.setDate(d.getDate()+1);fd.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+
+
+// One-upload OCR flow: read selected SCADA images and fill the existing packer fields.
+let packerOcrWorker=null;
+function loadTesseractScript(){return new Promise((resolve,reject)=>{if(window.Tesseract){resolve();return;}const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';sc.onload=resolve;sc.onerror=()=>reject(new Error('OCR 엔진을 불러오지 못했습니다. 인터넷 연결을 확인하세요.'));document.head.appendChild(sc);});}
+async function getPackerOcrWorker(){if(packerOcrWorker)return packerOcrWorker;await loadTesseractScript();packerOcrWorker=await Tesseract.createWorker('kor+eng',1,{logger:m=>{if(m.status){const st=document.getElementById('packerOcrStatus');if(st)st.innerHTML=`<div class="small">OCR 준비/판독 중: ${m.status}${m.progress!==undefined?' ('+Math.round(m.progress*100)+'%)':''}</div>`;}}});return packerOcrWorker;}
+function normalizeOcrText(t){return (t||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[，]/g,',').replace(/[：]/g,':').replace(/[Oo]/g,'0');}
+function findOcrNumber(text, patterns){for(const pat of patterns){const re=new RegExp(pat,'i');const m=text.match(re);if(m){const raw=(m[1]||'').replace(/,/g,'').replace(/[^0-9.\-]/g,'');const n=Number(raw);if(Number.isFinite(n))return n;}}return null;}
+function detectPackerProduct(text){
+ const t=(text||'').replace(/\s+/g,' ').toLowerCase();
+ if(/타일\s*떠?붙임|타일떠붙임|떠붙임/.test(t))return '타일떠붙임';
+ if(/미장\s*40\s*(?:kg|㎏|키로)?|미장40/.test(t))return '미장 40kg';
+ if(/미장\s*25\s*(?:kg|㎏|키로)?|미장25/.test(t))return '미장 25kg';
+ return null;
+}
+function extractLabelNumber(text,labelVariants){
+ const compact=text.replace(/[ \t]+/g,' ');
+ for(const label of labelVariants){
+  const re=new RegExp(label+'[^0-9]{0,45}([0-9][0-9,]{2,})','i');
+  const m=compact.match(re); if(m){const n=Number(m[1].replace(/,/g,''));if(Number.isFinite(n))return n;}
+ }
+ return null;
+}
+function extractLabelDuration(text,labelVariants){
+ const compact=text.replace(/[ \t]+/g,' ');
+ for(const label of labelVariants){
+  // This SCADA layout shows duration as three adjacent cells: hours, minutes, seconds.
+  const re=new RegExp(label+'[^0-9]{0,35}([0-9]{1,3})[^0-9]{0,8}([0-9]{1,2})[^0-9]{0,8}([0-9]{1,2})','i');
+  const m=compact.match(re);if(m){const h=Number(m[1]),mi=Number(m[2]),sec=Number(m[3]);if(mi<60&&sec<60)return +(h+mi/60+sec/3600).toFixed(4);}
+ }
+ return null;
+}
+function fillPackerFromOcr(text, fixedValues={}){
+ const t=normalizeOcrText(text);const lines=t.split(/\n+/).map(x=>x.trim()).filter(Boolean);const found=[];
+ // 전체 화면 OCR은 항목과 숫자의 연결이 불안정하므로, 확대 숫자칸 판독 결과만 신뢰합니다.
+ let today=null;
+ let prev=null;
+ let todayHours=null;
+ let prevHours=null;
+ if(Number.isFinite(fixedValues.today)&&fixedValues.today>=0&&fixedValues.today<=100000) today=fixedValues.today;
+ if(Number.isFinite(fixedValues.prev)&&fixedValues.prev>=0&&fixedValues.prev<=100000) prev=fixedValues.prev;
+ if(Number.isFinite(fixedValues.todayHours)&&fixedValues.todayHours>=0&&fixedValues.todayHours<=24) todayHours=fixedValues.todayHours;
+ if(Number.isFinite(fixedValues.prevHours)&&fixedValues.prevHours>=0&&fixedValues.prevHours<=24) prevHours=fixedValues.prevHours;
+ // 전체 화면 OCR 텍스트에서 근처 숫자를 임의로 연결하는 fallback은 오판을 만들므로 사용하지 않습니다.
+ const candidates=[['금일 생산량','packerToday',today],['금일 가동시간(시간 환산)','packerTodayHours',todayHours],['전일 생산량','packerPrev',prev],['전일 가동시간(시간 환산)','packerPrevHours',prevHours]];
+ for(const [label,id,value] of candidates){if(value!==null){document.getElementById(id).value=value;found.push(`${label}: ${value.toLocaleString('ko-KR')}${id.includes('Hours')?'시간':'포'}`);}}
+ // 제품명은 OCR 원문에서 추측하지 않고, 제품별 합계 숫자칸 판독값으로만 구분합니다.
+ let mig=null;
+ let tile=null;
+ let mig25=null;
+ if(mig===null&&Number.isFinite(fixedValues.productTotals?.mig))mig=fixedValues.productTotals.mig;
+ if(tile===null&&Number.isFinite(fixedValues.productTotals?.tile))tile=fixedValues.productTotals.tile;
+ if(mig25===null&&Number.isFinite(fixedValues.productTotals?.mig25))mig25=fixedValues.productTotals.mig25;
+ let product=null;
+ if(mig!==null&&mig>0&&tile===0&&mig25===0)product='미장 40kg';
+ else if(tile!==null&&tile>0&&mig===0&&mig25===0)product='타일 떠붙임';
+ else if(mig25!==null&&mig25>0&&mig===0&&tile===0)product='미장 25kg';
+ const productField=document.getElementById('packerProductDetected');if(productField&&product){productField.value=product;found.push(`생산 제품: ${product}`);}
+ for(let i=1;i<=8;i++){const re=new RegExp('(?:스파우트|spout|sp\\.?)[\\s#№-]*'+i+'[^\\n\\d]{0,12}([\\d,]+)','i');const m=t.match(re);if(m){const n=Number(m[1].replace(/,/g,''));if(Number.isFinite(n)){document.getElementById('spout'+i).value=n;found.push(`${i}번 스파우트: ${n}`);}}}
+ if(found.length){document.getElementById('packerOcrStatus').innerHTML='<strong>SCADA 표 항목을 기준으로 자동 판독했습니다. 확인 후 저장하세요.</strong><ul>'+found.map(x=>`<li>${x}</li>`).join('')+'</ul><div class="small muted">숫자 칸 확대 판독 결과만 반영했습니다. 표시되지 않은 항목은 자동 추정하지 않았습니다. 저장 전 실제 SCADA 값과 대조해 주세요.</div>';calcPackerSummary();}
+ else{document.getElementById('packerOcrStatus').innerHTML='<strong>OCR은 실행됐지만 이 사진에서 자동 연결할 값을 찾지 못했습니다.</strong><div class="small muted">OCR 원문을 확인하거나 필요한 값만 직접 입력해 주세요.</div>';}
+}
+document.querySelectorAll('#packerToday,#packerTodayHours,#packerPrev,#packerPrevHours').forEach(el=>el.addEventListener('input',calcPackerSummary));
+document.getElementById('packerPhotos')?.addEventListener('change',e=>{const files=[...(e.target.files||[])];document.getElementById('packerPhotoNames').textContent=files.length?files.map(f=>f.name).join(' · '):'선택된 사진 없음';if(files.length){document.getElementById('packerOcrStatus').innerHTML='<div class="small">사진 첨부를 확인했습니다. OCR 판독을 자동으로 시작합니다…</div>';document.getElementById('readPackerPhotos').click();}});
+document.getElementById('readPackerPhotos')?.addEventListener('click',async()=>{
+ const files=[...(document.getElementById('packerPhotos')?.files||[])];const status=document.getElementById('packerOcrStatus');const raw=document.getElementById('packerOcrText');
+ if(!files.length){status.innerHTML='<div class="small">먼저 사진을 선택하세요.</div>';return;}
+ const button=document.getElementById('readPackerPhotos');button.disabled=true;let combined='';let done=0;let fixedValues={};
+ try{const worker=await getPackerOcrWorker();for(const file of files){status.innerHTML=`<div class="small">${file.name} 판독 중 (${done+1}/${files.length})…</div>`;const result=await worker.recognize(file);let full=result.data.text||'';combined+=`\n--- ${file.name} 전체 화면 ---\n${full}\n`;
+ // 같은 SCADA 화면의 오른쪽 상단 요약표를 별도로 확대 판독한다. 사진 전체 OCR에서 항목명이 깨져도 표 영역의 글자와 숫자를 더 잘 연결할 수 있다.
+ fixedValues.productTotals=fixedValues.productTotals||{};
+ try{
+  const img=await createImageBitmap(file);
+  const makeCrop=async(x,y,w,h,scale=4)=>{
+   const sx=Math.round(img.width*x),sy=Math.round(img.height*y),sw=Math.round(img.width*w),sh=Math.round(img.height*h);
+   const canvas=document.createElement('canvas');canvas.width=Math.max(1,sw*scale);canvas.height=Math.max(1,sh*scale);
+   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=false;ctx.drawImage(img,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
+   const id=ctx.getImageData(0,0,canvas.width,canvas.height),d=id.data;
+   for(let i=0;i<d.length;i+=4){const g=.299*d[i]+.587*d[i+1]+.114*d[i+2];const v=g>145?255:g<75?0:Math.round((g-75)*255/70);d[i]=d[i+1]=d[i+2]=v;}
+   ctx.putImageData(id,0,0);return canvas;
+  };
+  const readNumeric=async(canvas)=>{try{await worker.setParameters({tessedit_char_whitelist:'0123456789,:. ',tessedit_pageseg_mode:'7'});const r=await worker.recognize(canvas);return (r.data.text||'').trim();}finally{await worker.setParameters({tessedit_char_whitelist:'',tessedit_pageseg_mode:'6'});}};
+  // 기준 원본 2253.jpg(1536x1219)에서 실제 표 위치를 다시 측정했습니다.
+  // 오른쪽 요약표는 이미지 높이의 약 40~58% 위치에 있습니다.
+  // 생산량은 우측 숫자 열, 가동시간은 시·분·초 세 칸을 함께 자릅니다.
+  // 촬영 위치가 크게 달라지면 자동 판독이 실패할 수 있으므로 미확인 값은 추정하지 않습니다.
+  const rows=[
+   ['금일생산량 숫자칸',.855,.398,.115,.044,'today'],
+   ['전일생산량 숫자칸',.855,.442,.115,.044,'prev'],
+   ['금일가동시간 숫자칸',.825,.482,.145,.045,'todayHours'],
+   ['전일가동시간 숫자칸',.825,.529,.145,.045,'prevHours']
+  ];
+  const rowTexts=[];
+  for(const [label,x,y,w,h,key] of rows){
+   const tx=await readNumeric(await makeCrop(x,y,w,h,6));rowTexts.push(`${label}: ${tx}`);
+   const nums=(tx.match(/\d+/g)||[]).map(Number);
+   if((key==='today'||key==='prev')&&nums.length){const candidate=Number(nums.join(''));if(candidate>=100&&candidate<=100000)fixedValues[key]=candidate;}
+   if((key==='todayHours'||key==='prevHours')&&nums.length>=3){const hh=nums[0],mi=nums[1],sec=nums[2];if(hh<=24&&mi<60&&sec<60)fixedValues[key]=+(hh+mi/60+sec/3600).toFixed(4);}
+  }
+  combined+=`\n--- ${file.name} 오른쪽 생산량/가동시간 표 확대 OCR ---\n${rowTexts.join('\n')}\n`;
+  // 왼쪽 제품별 TOTAL 행은 원본 이미지 높이의 약 75~79% 지점입니다.
+  // 기존 y≈0.516 좌표는 TOTAL 행이 아니라 6~7번 생산 행을 읽고 있었습니다.
+  const productCells=[
+   ['미장 합계 숫자칸',.075,.746,.095,.038,'mig'],
+   ['타일 합계 숫자칸',.178,.746,.095,.038,'tile'],
+   ['미장25 합계 숫자칸',.282,.746,.095,.038,'mig25']
+  ];
+  const productTexts=[];
+  for(const [label,x,y,w,h,key] of productCells){const tx=await readNumeric(await makeCrop(x,y,w,h));productTexts.push(`${label}: ${tx}`);const nums=(tx.match(/\d+/g)||[]).map(Number);if(nums.length)fixedValues.productTotals[key]=Number(nums.join(''));}
+  combined+=`--- ${file.name} 왼쪽 제품별 합계 숫자칸 OCR ---\n${productTexts.join('\n')}\n`;img.close();
+ }catch(cropErr){combined+=`\n[표 위치별 확대 OCR 실패: ${cropErr.message||cropErr}]\n`;}
+ done++;}raw.textContent=combined;fillPackerFromOcr(combined,typeof fixedValues!=='undefined'?fixedValues:{});}
+ catch(err){status.innerHTML=`<strong>OCR 실행 실패</strong><div class="small">${String(err.message||err)}. 사진 업로드/입력은 가능하므로 필요한 값을 직접 입력할 수 있습니다.</div>`;}
+ finally{button.disabled=false;}
+});
+
+</script>
+</body>
+</html>
